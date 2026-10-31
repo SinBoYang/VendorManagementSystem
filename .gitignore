@@ -1,0 +1,31 @@
+﻿# Visual Studio / Rider
+.vs/
+.idea/
+*.user
+*.suo
+*.VC.db
+*.VC.opendb
+
+# Build outputs
+**/bin/
+**/obj/
+[Dd]ebug/
+[Rr]elease/
+
+# æœ¬æ©Ÿè¨­å®šèˆ‡æ•æ„Ÿè³‡æ–™ï¼ˆé€£ç·šå­—ä¸²ã€å¯†ç¢¼ã€é‡‘é‘°ï¼‰
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.local.json
+*.pfx
+*.key
+*.pem
+.env
+.env.*
+secrets.json
+
+# Logs / OS / editor
+*.log
+Thumbs.db
+.DS_Store
+.vscode/
+
