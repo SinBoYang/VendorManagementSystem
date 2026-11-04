@@ -801,42 +801,78 @@ ORDER BY i.INVOICE_ID DESC;";
 
         private static Dictionary<string, object> GetObject(Dictionary<string, object> source, string key)
         {
-            if (!source.TryGetValue(key, out var value) || value is null)
-                return new Dictionary<string, object>();
-
-            if (value is Dictionary<string, object> map)
-                return map;
-
-            if (value is JsonElement element && element.ValueKind == JsonValueKind.Object)
+            
+            Dictionary<string, object> result = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);  
+            if (!source.ContainsKey(key))
             {
-                var result = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-                foreach (var p in element.EnumerateObject())
-                    result[p.Name] = p.Value;
                 return result;
             }
 
-            return new Dictionary<string, object>();
+            object value = source[key];
+            if (value == null)
+            {
+                return result;
+            }
+            if (value is Dictionary<string, object>)
+            {
+                return (Dictionary<string, object>)value;
+            }
+
+            if (value is JsonElement)
+            {
+                JsonElement element = (JsonElement)value;
+                if (element.ValueKind == JsonValueKind.Object)
+                {
+                    foreach (JsonProperty property in element.EnumerateObject())
+                    {
+                        result[property.Name] = property.Value;
+                    }
+                }
+            }
+            return result;
         }
 
         private static string? GetString(Dictionary<string, object> source, string key)
         {
-            if (!source.TryGetValue(key, out var value) || value is null)
-                return null;
-
-            if (value is string s)
-                return s;
-
-            if (value is JsonElement element)
+            if (!source.ContainsKey(key))
             {
-                return element.ValueKind switch
+                return null;
+            }
+
+            object value = source[key];
+
+            if (value == null)
+            {
+                return null;
+            }
+
+            if (value is string)
+            {
+                return (string)value;
+            }
+
+            if (value is JsonElement)
+            {
+                JsonElement element = (JsonElement)value;
+
+                if (element.ValueKind == JsonValueKind.Null)
                 {
-                    JsonValueKind.String => element.GetString(),
-                    JsonValueKind.Number => element.GetRawText(),
-                    JsonValueKind.True => "true",
-                    JsonValueKind.False => "false",
-                    JsonValueKind.Null => null,
-                    _ => element.GetRawText()
-                };
+                    return null;
+                }
+                if (element.ValueKind == JsonValueKind.String)
+                {
+                    return element.GetString();
+                }
+                if (element.ValueKind == JsonValueKind.True)
+                {
+                    return "true";
+                }
+                if (element.ValueKind == JsonValueKind.False)
+                {
+                    return "false";
+                }
+
+                return element.GetRawText();
             }
 
             return value.ToString();
